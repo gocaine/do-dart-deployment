@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+
+  traefik:
+    image: traefik:latest
+    command: --web --docker --docker.domain=docker.localhost --logLevel=DEBUG
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/null:/traefik.toml
+    restart: always
+
+  backend:
+    image: gocaine/go-dart:latest
+    labels:
+      - "traefik.backend=go-dart"
+      - "traefik.frontend.rule=Host:go-dart.mabreizh.fr"
+    restart: always
