@@ -4,7 +4,9 @@ services:
 
   traefik:
     image: traefik:latest
-    command: --web --docker --docker.domain=docker.localhost --logLevel=DEBUG
+    command: --web --docker --docker.domain=docker.localhost --defaultentrypoints="http,https" --entryPoints='Name:http Address::80 Redirect.EntryPoint:https' --entryPoints='Name:https Address::443 TLS' --acme --acme.email="gocaine@gmail.com" --acme.domains=go-dart.mabreizh.fr --acme.entryPoint=https --acme.storagefile=/acme/acme.json
+    labels:
+      - "traefik.enable=false"
     ports:
       - "80:80"
       - "443:443"
@@ -12,6 +14,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dev/null:/traefik.toml
+      - certificates:/acme
     restart: always
 
   backend:
@@ -20,3 +23,6 @@ services:
       - "traefik.backend=go-dart"
       - "traefik.frontend.rule=Host:go-dart.mabreizh.fr"
     restart: always
+
+volumes:
+  certificates:
